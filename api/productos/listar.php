@@ -11,7 +11,7 @@ try{
         WHERE p.activo = 1
         ORDER BY p.nombre ASC
 
-    " )
+    ");
     $stmt -> execute();
      $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

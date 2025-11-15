@@ -1,0 +1,57 @@
+<!DOCTYPE html> 
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Almacén - Taller Textil</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/barrabusqueda.css" />
+</head>
+<body>
+  <header>
+    <h1>Control de Almacén - Taller Textil</h1>
+  </header>
+
+  <main>
+    <section class="tabla-productos">
+      <h2>Productos en almacén</h2>
+       <a href="index.html" style="text-decoration:none; display:inline-block; margin-bottom:1rem; font-size:0.9rem;">
+  ⬅️ Volver al menú
+</a>
+
+      <!-- 🔍 Barra de búsqueda + botón imprimir -->
+      <div class="barra-acciones">
+        <div class="buscador">
+          <label for="busqueda">Buscar:</label>
+          <input 
+            type="text" 
+            id="busqueda" 
+            placeholder="Código, nombre, color o talla..."
+          />
+        </div>
+
+        <button id="btn-imprimir" type="button">
+          🖨️ Imprimir
+        </button>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Color</th>
+            <th>Talla</th>
+            <th>Existencias</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-productos-body">
+          <!-- Aquí se llenará con JS -->
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="../js/imprimir.js"></script>
+</body>
+</html>
