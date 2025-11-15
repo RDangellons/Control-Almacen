@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registrar movimientos - Almacén</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Registrar movimientos de almacén</h1>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Nuevo movimiento</h2>
+
+      <form id="form-movimiento" class="form-filtros">
+        <div class="field-group">
+          <label for="producto_id">Producto:</label>
+          <select id="producto_id" name="producto_id" required>
+            <option value="">Selecciona un producto</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="tipo">Tipo:</label>
+          <select id="tipo" name="tipo" required>
+            <option value="entrada">Entrada</option>
+            <option value="salida">Salida</option>
+            <option value="ajuste">Ajuste</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="cantidad">Cantidad:</label>
+          <input type="number" id="cantidad" name="cantidad" min="1" required>
+        </div>
+
+        <div class="field-group">
+          <label for="motivo">Motivo (opcional):</label>
+          <input type="text" id="motivo" name="motivo" maxlength="255">
+        </div>
+
+        <div class="field-group">
+          <label for="referencia">Referencia (nota, pedido, etc.):</label>
+          <input type="text" id="referencia" name="referencia" maxlength="100">
+        </div>
+
+        <button type="submit">Guardar movimiento</button>
+      </form>
+
+      <p><strong>Existencias actuales del producto seleccionado:</strong> 
+        <span id="existencias-actuales">-</span>
+      </p>
+    </section>
+  </main>
+
+  <script src="../js/movimientos.js"></script>
+</body>
+</html>

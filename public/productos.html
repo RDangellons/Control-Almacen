@@ -1,0 +1,194 @@
+<!DOCTYPE html> 
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Productos - Almacén</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .field-group label {
+      font-size: 0.9rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .field-group input {
+      padding: 0.4rem 0.6rem;
+      font-size: 0.9rem;
+    }
+
+    .acciones-form {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .acciones-form button {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn-primario {
+      background-color: #0077cc;
+      color: #fff;
+    }
+
+    .btn-secundario {
+      background-color: #ccc;
+      color: #222;
+    }
+
+    .tabla-contenedor {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 500px;
+    }
+
+    th, td {
+      padding: 0.45rem;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: #eee;
+    }
+
+    .btn-accion-tabla {
+      padding: 0.2rem 0.5rem;
+      font-size: 0.8rem;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      margin-right: 0.25rem;
+    }
+
+    .btn-editar {
+      background-color: #ffa500;
+      color: #fff;
+    }
+
+    .btn-eliminar {
+      background-color: #d9534f;
+      color: #fff;
+    }
+
+    @media (min-width: 700px) {
+      .form-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .acciones-form {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Productos</h1>
+  </header>
+
+  <main style="padding:1rem;">
+    <a href="index.html" style="text-decoration:none; display:inline-block; margin-bottom:1rem; font-size:0.9rem;">
+      ⬅️ Volver al menú
+    </a>
+
+    <!-- Formulario de alta / edición -->
+    <section class="card">
+      <h2>Registrar / editar producto</h2>
+      
+      <form id="form-producto">
+        <!-- Campo oculto para saber si es edición -->
+        <input type="hidden" id="id" name="id" />
+
+        <div class="form-grid">
+          <div class="field-group">
+            <label for="codigo">Código *</label>
+            <input type="text" id="codigo" name="codigo" required />
+          </div>
+
+          <div class="field-group">
+            <label for="nombre">Nombre *</label>
+            <input type="text" id="nombre" name="nombre" required />
+          </div>
+
+          <div class="field-group">
+            <label for="color">Color</label>
+            <input type="text" id="color" name="color" />
+          </div>
+
+          <div class="field-group">
+            <label for="talla">Talla</label>
+            <input type="text" id="talla" name="talla" />
+          </div>
+
+          <div class="field-group">
+            <label for="precio_referencia">Precio referencia</label>
+            <input type="number" step="0.01" id="precio_referencia" name="precio_referencia" />
+          </div>
+        </div>
+
+        <div class="acciones-form">
+          <button type="submit" class="btn-primario" id="btn-guardar">Guardar producto</button>
+          <button type="button" class="btn-secundario" id="btn-limpiar">Limpiar formulario</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Lista de productos -->
+    <section class="card">
+      <h2>Listado de productos</h2>
+
+      <div class="tabla-contenedor">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Color</th>
+              <th>Talla</th>
+              <th>Precio ref.</th>
+              <th>Existencias</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-productos-body">
+            <!-- JS llena aquí -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="../js/productos.js"></script>
+</body>
+</html>
