@@ -36,13 +36,13 @@ try {
 
     if (!$user) {
         http_response_code(401);
-        echo json_encode(["error" => "Usuario o contraseña incorrectos."]);
+        echo json_encode(["error" => "Usuario  incorrecto."]);
         exit;
     }
 
    if ($password !== $user['password']) {
     http_response_code(401);
-    echo json_encode(["error" => "Usuario o contraseña incorrectos."]);
+    echo json_encode(["error" => "Contraseña incorrecta"]);
     exit;
 }
     

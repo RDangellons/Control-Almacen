@@ -1,13 +1,11 @@
 <?php
-// Ajusta estos require según los nombres de tus archivos reales
-require_once __DIR__ . '/api/config/session.php';
-require_once __DIR__ . '/api/config/db.php'; // si se llama database.php, cámbialo aquí
+require_once __DIR__ . '/config/session.php';
+require_once __DIR__ . '/config/db.php';
 
 $usuario  = 'admin';
-$password = 'admin123'; // puedes cambiarla
+$password = 'admin123'; // cámbiala si quieres
 $nombre   = 'Administrador';
 
-// Generar hash de la contraseña
 $hash = password_hash($password, PASSWORD_DEFAULT);
 
 try {
@@ -28,9 +26,9 @@ try {
             ':nom'  => $nombre,
             ':id'   => $existe['id']
         ]);
-        echo "Usuario admin actualizado.<br>Usuario: {$usuario}<br>Contraseña: {$password}";
+        echo "Usuario admin actualizado. Usuario: $usuario, Contraseña: $password";
     } else {
-        // Crear nuevo usuario admin
+        // Crear nuevo admin
         $stmt = $conn->prepare("
             INSERT INTO usuarios (nombre, usuario, password, rol)
             VALUES (:nom, :usuario, :pass, 'admin')
@@ -40,8 +38,9 @@ try {
             ':usuario' => $usuario,
             ':pass'    => $hash
         ]);
-        echo "Usuario admin creado.<br>Usuario: {$usuario}<br>Contraseña: {$password}";
+        echo "Usuario admin creado. Usuario: $usuario, Contraseña: $password";
     }
+
 } catch (PDOException $e) {
-    echo "Error: " . $e->getMessage();
+    echo "ERROR: " . $e->getMessage();
 }
