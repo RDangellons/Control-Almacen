@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
           msg.textContent = 'Ingreso correcto, redirigiendo...';
           // Redirigimos al menú principal
           setTimeout(() => {
-            window.location.href = 'menu.html';
+            window.location.href = 'index.html';
           }, 500);
         } else if (data.error) {
           msg.style.color = '#d9534f';

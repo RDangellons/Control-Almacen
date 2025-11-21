@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Menú principal - Almacén</title>
-  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/menu.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+
 
   <style>
     * {
@@ -121,25 +123,28 @@
 </head>
 
 <body>
-  <header style="position:relative; background:#000; color:#fff; padding:1rem 1.5rem; text-align:center;">
-  <h1 style="margin:0;">Menú principal</h1>
+  <header class="header-dior">
+  <div class="header-inner">
+    <!-- Bloque de marca -->
+    <div class="brand-block">
+      <div class="brand-logo">
+        CA
+      </div>
+      <div class="brand-text">
+        <span class="brand-top">Control de Almacén</span>
+        <span class="brand-bottom">Taller Textil</span>
+      </div>
+    </div>
 
-  <!-- Aquí se va a pintar el usuario -->
-  <span id="user-info"
-        style="position:absolute; top:10px; left:15px; color:#fff; font-size:0.9rem;">
-  </span>
+    <!-- Lado derecho: usuario + logout -->
+    <div class="header-right">
+      <span id="user-info" class="user-info"></span>
 
-  <button id="logout-btn" style="
-    position:absolute;
-    top:10px;
-    right:15px;
-    padding:6px 10px;
-    background:#d9534f;
-    color:#fff;
-    border:none;
-    border-radius:4px;
-    cursor:pointer;
-  ">Cerrar sesión</button>
+      <button id="logout-btn" class="btn-logout">
+        Cerrar sesión
+      </button>
+    </div>
+  </div>
 </header>
 
 
