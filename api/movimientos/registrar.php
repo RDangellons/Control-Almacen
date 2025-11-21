@@ -1,9 +1,17 @@
 <?php
+require_once __DIR__ . '/../../config/session.php';
 require_once __DIR__ . '/../../config/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(["error" => "Método no permitido"]);
+    exit;
+}
+
+// Verificar que haya usuario en sesión
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(["error" => "No autenticado"]);
     exit;
 }
 
@@ -13,8 +21,7 @@ $cantidad    = isset($_POST['cantidad']) ? (int)$_POST['cantidad'] : 0;
 $motivo      = isset($_POST['motivo']) ? trim($_POST['motivo']) : '';
 $referencia  = isset($_POST['referencia']) ? trim($_POST['referencia']) : '';
 
-// Por ahora, usuario fijo (luego lo ligamos al login)
-$usuario_id  = 1;
+$usuario_id  = (int)$_SESSION['user_id'];   // 👈 AQUÍ el usuario real
 
 // Validaciones básicas
 if ($producto_id <= 0 || $cantidad <= 0) {
@@ -30,7 +37,6 @@ if (!in_array($tipo, ['entrada', 'salida', 'ajuste'])) {
 }
 
 try {
-    // Iniciamos transacción
     $conn->beginTransaction();
 
     // Verificar que el producto exista y esté activo
@@ -56,7 +62,6 @@ try {
     if ($tipo === 'entrada') {
         $nueva_existencia = $existencia_actual + $cantidad;
     } elseif ($tipo === 'salida') {
-        // No permitir existencias negativas
         if ($cantidad > $existencia_actual) {
             $conn->rollBack();
             http_response_code(400);
@@ -67,19 +72,8 @@ try {
         }
         $nueva_existencia = $existencia_actual - $cantidad;
     } elseif ($tipo === 'ajuste') {
-        // Para ajuste vamos a asumir que 'cantidad' es el cambio final:
-        // si es ajuste positivo, sumas; si es ajuste negativo (ej. -5), restas.
-        // Para que el form sea más fácil, por ahora solo permitimos ajustes positivos o negativos
-        // usando un campo adicional 'signo' sería ideal, pero de momento:
-        // aquí lo tratamos como "nueva_existencia = cantidad" (ajuste directo)
-        // SI PREFIERES: COMENTA ESTA LÍNEA y DESCOMENTA LA OTRA OPCIÓN.
-        
-        // OPCIÓN 1: Ajuste define la existencia final:
-        // $nueva_existencia = $cantidad;
-        
-        // OPCIÓN 2 (más simple): Ajuste suma a lo que hay:
-        $nueva_existencia = $existencia_actual + $cantidad; // aquí cantidad puede ser positiva o negativa
-        
+        // Aquí puedes ajustar la lógica según cómo uses "ajuste"
+        $nueva_existencia = $existencia_actual + $cantidad;
         if ($nueva_existencia < 0) {
             $conn->rollBack();
             http_response_code(400);
@@ -88,7 +82,7 @@ try {
         }
     }
 
-    // Insertamos/actualizamos existencias
+    // Insertar / actualizar existencias
     if ($exist) {
         $stmt = $conn->prepare("UPDATE existencias SET cantidad = :cant WHERE id = :id");
         $stmt->execute([
@@ -103,7 +97,7 @@ try {
         ]);
     }
 
-    // Registrar el movimiento
+    // Registrar el movimiento con usuario_id 👇
     $stmt = $conn->prepare("
         INSERT INTO movimientos (producto_id, tipo, cantidad, motivo, usuario_id, referencia)
         VALUES (:pid, :tipo, :cant, :motivo, :uid, :ref)
@@ -113,7 +107,7 @@ try {
         ':tipo'  => $tipo,
         ':cant'  => $cantidad,
         ':motivo'=> $motivo,
-        ':uid'   => $usuario_id,
+        ':uid'   => $usuario_id,   // 👈 guarda quién lo registró
         ':ref'   => $referencia
     ]);
 
