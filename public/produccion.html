@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Producción - En tránsito</title>
+
+  <!-- Tu estilo general -->
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+
+<body>
+
+  <!-- HEADER NORMAL -->
+  <header>
+    <h1>Producción en tránsito</h1>
+    <span id="user-info" style="position:absolute; top:10px; left:10px; font-size:0.9rem;"></span>
+  </header>
+
+  <main>
+
+    <a href="index.html" style="text-decoration:none; font-size:0.9rem; display:inline-block; margin-bottom:1rem;">
+      ⬅️ Volver al menú
+    </a>
+
+    <section class="card">
+      <h2>Órdenes de producción (En tránsito)</h2>
+
+      <p style="font-size:0.9rem; color:#444;">
+        Aquí puedes ver todas las órdenes que están aún en proceso dentro del taller.
+      </p>
+
+      <div class="tabla-contenedor">
+        <table>
+          <thead>
+            <tr>
+              <th>Folio</th>
+              <th>Producto</th>
+              <th>Color/Talla</th>
+              <th>Cant. total</th>
+              <th>Terminada</th>
+              <th>Pendiente</th>
+              <th>Estado</th>
+              <th>Inicio</th>
+              <th>Entrega est.</th>
+              <th>Responsable</th>
+            </tr>
+          </thead>
+
+          <tbody id="tabla-produccion-body">
+            <tr><td colspan="10">Cargando información...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="../js/auth-guard.js"></script>
+  <script src="../js/produccion.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      verificarSesionYOIrALoginSiNo();
+
+      document.getElementById('logout-btn').addEventListener('click', async () => {
+        await fetch('../api/auth/logout.php');
+        window.location.href = 'login.html';
+      });
+    });
+  </script>
+
+</body>
+</html>
