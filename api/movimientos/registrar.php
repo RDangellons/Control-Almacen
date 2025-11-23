@@ -98,18 +98,22 @@ try {
     }
 
     // Registrar el movimiento con usuario_id 👇
-    $stmt = $conn->prepare("
-        INSERT INTO movimientos (producto_id, tipo, cantidad, motivo, usuario_id, referencia)
-        VALUES (:pid, :tipo, :cant, :motivo, :uid, :ref)
-    ");
-    $stmt->execute([
-        ':pid'   => $producto_id,
-        ':tipo'  => $tipo,
-        ':cant'  => $cantidad,
-        ':motivo'=> $motivo,
-        ':uid'   => $usuario_id,   // 👈 guarda quién lo registró
-        ':ref'   => $referencia
-    ]);
+    // Fecha real de México
+$fecha = date('Y-m-d H:i:s');
+
+$stmt = $conn->prepare("
+    INSERT INTO movimientos (producto_id, tipo, cantidad, motivo, usuario_id, referencia, fecha)
+    VALUES (:pid, :tipo, :cant, :motivo, :uid, :ref, :fecha)
+");
+$stmt->execute([
+    ':pid'   => $producto_id,
+    ':tipo'  => $tipo,
+    ':cant'  => $cantidad,
+    ':motivo'=> $motivo,
+    ':uid'   => $usuario_id,
+    ':ref'   => $referencia,
+    ':fecha' => $fecha
+]);
 
     $conn->commit();
 

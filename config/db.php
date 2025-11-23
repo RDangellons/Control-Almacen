@@ -1,5 +1,5 @@
 <?php
-
+date_default_timezone_set('America/Mexico_City'); 
 header('Content-Type: application/json; charset=utf-8');
 // conexion al xampp
 $host= "localhost";
