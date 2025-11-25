@@ -98,6 +98,24 @@ th {
   background: #e0e0ff;
   font-weight: bold;
 }
+.fila-separador {
+    background: #dfe6f0;    /* azul muy suave */
+    font-weight: bold;
+    font-size: 1rem;
+    text-transform: uppercase;
+    border-top: 3px solid #b0c4de;
+}
+
+.fila-total-modelo {
+    background: #f4f4fa;    /* gris suave */
+    font-weight: bold;
+}
+
+.fila-total-general {
+    background: #e8e8ff;    /* lila suave */
+    font-weight: bold;
+}
+
 
 
 
@@ -127,3 +145,39 @@ th {
     padding: 0.4rem;
   }
 }
+
+@media print {
+  /* Ocultar elementos que no queremos en el papel */
+  header,
+  #logout-btn,
+  a[href="index.html"],
+  #filtro-modelo,
+  button {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .card {
+    box-shadow: none;
+    border: none;
+    padding: 0;
+  }
+
+  table {
+    font-size: 0.8rem;
+  }
+
+  /* Opcional: cada modelo en nueva hoja
+  .fila-separador {
+    page-break-before: always;
+  }
+
+  .fila-separador:first-child {
+    page-break-before: auto;
+  }
+  */
+}
+

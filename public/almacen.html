@@ -1,5 +1,6 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,6 +8,7 @@
   <link rel="stylesheet" href="../css/style.css" />
   <link rel="stylesheet" href="../css/barrabusqueda.css" />
 </head>
+
 <body>
   <header>
     <h1>Control de Almacén - Taller Textil</h1>
@@ -15,21 +17,20 @@
   <main>
     <section class="tabla-productos">
       <h2>Productos en almacén</h2>
-       <a href="index.html" style="text-decoration:none; display:inline-block; margin-bottom:1rem; font-size:0.9rem;">
-  ⬅️ Volver al menú
-</a>
+      <a href="index.html" style="text-decoration:none; display:inline-block; margin-bottom:1rem; font-size:0.9rem;">
+        ⬅️ Volver al menú
+      </a>
 
       <!-- 🔍 Barra de búsqueda + botón imprimir -->
       <div class="barra-acciones">
         <div class="buscador">
           <label for="busqueda">Buscar:</label>
-          <input 
-            type="text" 
-            id="busqueda" 
-            placeholder="Código, nombre, color o talla..."
-          />
+          <input type="text" id="busqueda" placeholder="Código, nombre, color o talla..." />
         </div>
 
+        <button type="button" onclick="window.location.reload()">
+          Actualizar
+        </button>
         <button id="btn-imprimir" type="button">
           🖨️ Imprimir
         </button>
@@ -52,10 +53,11 @@
       </table>
     </section>
   </main>
-  <script src="../public/js/auth-guard.js"></script>
+  <script src="../js/auth-guard.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', verificarSesionYOIrALoginSiNo);
   </script>
   <script src="../js/imprimir.js"></script>
 </body>
+
 </html>

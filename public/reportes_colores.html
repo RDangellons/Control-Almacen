@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reporte de existencias por color</title>
+
+  <link rel="stylesheet" href="../css/colores.css" />
+</head>
+<body>
+
+  <header>
+    <h1>Existencias por color</h1>
+  </header>
+    
+
+<main style="padding:1rem;">
+    <a href="index.html" style="text-decoration:none; display:inline-block; margin-bottom:1rem; font-size:0.9rem;">
+      ⬅️ Volver al menú
+    </a>
+
+    <section class="card">
+  <h2>Resumen por modelo y color</h2>
+  <p style="font-size:0.9rem; color:#555;">
+    Escribe un modelo para ver solo ese (por ejemplo: 211). Déjalo vacío para ver todos.
+  </p>
+
+  <form id="filtro-modelo" class="form-filtros" style="margin-bottom: 0.75rem;">
+    <div class="field-group">
+      <label for="modelo">Modelo</label>
+      <input type="text" id="modelo" name="modelo" placeholder="Ej. 211">
+    </div>
+    <button type="submit">Filtrar</button>
+    <button type="button" id="btn-limpiar">Ver todos</button>
+    <!-- Botón de imprimir -->
+      <button type="button" id="btn-imprimir">🖨️ Imprimir reporte</button>
+  </form>
+
+  <div class="tabla-contenedor">
+    <table>
+      <thead>
+        <tr>
+          <th>Modelo</th>
+          <th>Producto</th>
+          <th>Color</th>
+          <th>Existencias</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-colores-body">
+        <tr><td colspan="4">Cargando...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+  <script src="../js/auth-guard.js"></script>
+  <script src="../js/reportes_colores.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      verificarSesionYOIrALoginSiNo();
+      });
+  </script>
+
+</body>
+</html>
