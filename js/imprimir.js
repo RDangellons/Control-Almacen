@@ -1,7 +1,15 @@
 let productosOriginales = [];
 
 document.addEventListener('DOMContentLoaded', () => {
-  cargarProductos();
+ 
+  const btnActualizar = document.getElementById('btn-actualizar');
+  if(btnActualizar){
+     btnActualizar.addEventListener('click', () => {
+      const filtro = inputBuscar ? inputBuscar.value.trim() : '';
+      cargarExistencias(filtro);   // vuelve a llamar al endpoint y repinta la tabla
+    });
+  }
+
 
   const inputBusqueda = document.getElementById('busqueda');
   if (inputBusqueda) {
@@ -14,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
       window.print();
     });
   }
+   cargarProductos();
 });
 
 function cargarProductos() {

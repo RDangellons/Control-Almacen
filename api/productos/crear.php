@@ -15,50 +15,87 @@ $precio  = isset($_POST['precio_referencia']) ? trim($_POST['precio_referencia']
 
 if ($codigo === '' || $nombre === '') {
     http_response_code(400);
-    echo json_encode(["error" => "Código y nombre son obligatorios."]);
+    echo json_encode([
+        "error" => "El código y el nombre del producto son obligatorios."
+    ]);
     exit;
 }
 
+// Si quieres, puedes obligar a que lleve color:
+if ($color === '') {
+    http_response_code(400);
+    echo json_encode([
+        "error" => "Debes indicar un color para el producto."
+    ]);
+    exit;
+}
+
+// Normalizar precio
+if ($precio === '') {
+    $precio = null;
+} else {
+    $precio = (float)$precio;
+}
+
 try {
-    // Verificar que no exista un producto con el mismo código
-    $stmt = $conn->prepare("SELECT id FROM productos WHERE codigo = :codigo AND activo = 1");
-    $stmt->execute([':codigo' => $codigo]);
-    if ($stmt->fetch(PDO::FETCH_ASSOC)) {
-        http_response_code(400);
-        echo json_encode(["error" => "Ya existe un producto activo con ese código."]);
+
+    // 🔴 AQUÍ ESTABA EL BLOQUEO ANTES:
+    // antes seguramente se hacía algo como:
+    // SELECT id FROM productos WHERE codigo = :codigo
+    // Eso impedía repetir código aunque fuera otro color.
+    //
+    // ✅ NUEVA LÓGICA:
+    // solo bloqueamos si YA existe el mismo CODIGO + COLOR.
+
+    $sqlDuplicado = "
+        SELECT id 
+        FROM productos 
+        WHERE codigo = :codigo
+          AND color  = :color
+        LIMIT 1
+    ";
+    $stmt = $conn->prepare($sqlDuplicado);
+    $stmt->execute([
+        ':codigo' => $codigo,
+        ':color'  => $color
+    ]);
+    $existe = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($existe) {
+        http_response_code(409);
+        echo json_encode([
+            "error" => "Ya existe un producto con ese código y color.",
+            "detalle" => "Código: {$codigo}, Color: {$color}"
+        ]);
         exit;
     }
 
-    // Insertar producto
-    $stmt = $conn->prepare("
+    // Insertar nuevo producto
+    $sqlInsert = "
         INSERT INTO productos (codigo, nombre, color, talla, precio_referencia, activo)
         VALUES (:codigo, :nombre, :color, :talla, :precio, 1)
-    ");
-
+    ";
+    $stmt = $conn->prepare($sqlInsert);
     $stmt->execute([
         ':codigo' => $codigo,
         ':nombre' => $nombre,
-        ':color'  => $color !== '' ? $color : null,
-        ':talla'  => $talla !== '' ? $talla : null,
-        ':precio' => $precio !== '' ? $precio : null,
+        ':color'  => $color,
+        ':talla'  => $talla,
+        ':precio' => $precio
     ]);
 
     $nuevoId = $conn->lastInsertId();
 
-    // Crear registro de existencias en 0
-    $stmt = $conn->prepare("INSERT INTO existencias (producto_id, cantidad) VALUES (:pid, 0)");
-    $stmt->execute([':pid' => $nuevoId]);
-
     echo json_encode([
-        "ok" => true,
+        "ok"      => true,
         "mensaje" => "Producto creado correctamente.",
-        "id" => $nuevoId
+        "id"      => $nuevoId
     ]);
 
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode([
-        "error" => "Error al crear el producto",
+        "error"   => "Error al crear el producto",
         "detalle" => $e->getMessage()
     ]);
 }
