@@ -1,90 +1,192 @@
 document.addEventListener('DOMContentLoaded', () => {
-  cargarProduccionEnTransito();
+  cargarProductosSelect();
+  cargarOrdenesProduccion();
+
+  const form = document.getElementById('form-produccion');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await crearOrdenProduccion();
+    });
+  }
 });
 
-function cargarProduccionEnTransito() {
-  fetch('../api/produccion/listar_en_transito.php', { cache: 'no-store' })
-    .then(res => {
-      if (res.status === 401) {
-        window.location.href = 'login.html';
-        return null;
-      }
-      return res.json();
-    })
-    .then(data => {
-      if (!data) return;
-      renderTablaProduccion(data);
-    })
-    .catch(err => {
-      console.error('Error cargando producción en tránsito:', err);
-      const tbody = document.getElementById('tabla-produccion-body');
-      if (tbody) {
-        tbody.innerHTML = '<tr><td colspan="10">Error al cargar los datos.</td></tr>';
-      }
+// Llenar select de productos
+async function cargarProductosSelect() {
+  const select = document.getElementById('producto_id');
+  if (!select) return;
+
+  try {
+    // Ajusta la ruta si tu endpoint de productos se llama distinto
+    const res = await fetch('../api/productos/listar.php');
+    const data = await res.json();
+
+    select.innerHTML = '<option value="">Selecciona un producto...</option>';
+
+    data.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = `${p.codigo} - ${p.nombre} (${p.color})`;
+      select.appendChild(opt);
     });
+  } catch (err) {
+    console.error('Error cargando productos para producción:', err);
+  }
 }
 
-function renderTablaProduccion(lista) {
-  const tbody = document.getElementById('tabla-produccion-body');
-  tbody.innerHTML = '';
+// Crear orden
+async function crearOrdenProduccion() {
+  const selectProd = document.getElementById('producto_id');
+  const inputCant  = document.getElementById('cantidad');
+  const inputRef   = document.getElementById('referencia');
 
-  if (!Array.isArray(lista) || lista.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="10">No hay órdenes en tránsito.</td></tr>';
+  const producto_id = selectProd.value;
+  const cantidad    = inputCant.value;
+  const referencia  = inputRef.value;
+
+  if (!producto_id || !cantidad || Number(cantidad) <= 0) {
+    alert('Selecciona un producto y una cantidad válida.');
     return;
   }
 
-  lista.forEach(op => {
-    const tr = document.createElement('tr');
+  try {
+    const res = await fetch('../api/produccion/crear.php', {
+      method: 'POST',
+      body: new URLSearchParams({
+        producto_id,
+        cantidad,
+        referencia
+      })
+    });
 
-    const productoTexto = `${op.producto_codigo || ''} - ${op.producto_nombre || ''}`;
-    const colorTalla = `${op.color || ''} ${op.talla || ''}`.trim();
-    const estadoLabel = formatearEstado(op.estado);
+    const data = await res.json();
 
-    const fechaInicio = op.fecha_inicio ? formatearFechaHora(op.fecha_inicio) : '';
-    const fechaEntrega = op.fecha_entrega_estimada ? formatearFecha(op.fecha_entrega_estimada) : '';
-
-    tr.innerHTML = `
-      <td>${op.id}</td>
-      <td>${productoTexto}</td>
-      <td>${colorTalla}</td>
-      <td>${op.cantidad_total}</td>
-      <td>${op.cantidad_terminada}</td>
-      <td>${op.cantidad_pendiente}</td>
-      <td>${estadoLabel}</td>
-      <td>${fechaInicio}</td>
-      <td>${fechaEntrega}</td>
-      <td>${op.responsable || ''}</td>
-    `;
-
-    tbody.appendChild(tr);
-  });
-}
-
-function formatearEstado(estado) {
-  if (!estado) return '';
-  switch (estado) {
-    case 'en_transito':
-      return 'En tránsito';
-    case 'terminado':
-      return 'Terminado';
-    case 'pausado':
-      return 'Pausado';
-    default:
-      return estado;
+    if (data.ok) {
+      alert('Orden de producción creada.');
+      inputCant.value = '';
+      inputRef.value = '';
+      cargarOrdenesProduccion();
+    } else {
+      alert('Error: ' + (data.error || 'No se pudo crear la orden.'));
+    }
+  } catch (err) {
+    console.error('Error creando orden:', err);
+    alert('Error al crear la orden.');
   }
 }
 
-function formatearFecha(fechaStr) {
-  // Asume formato YYYY-MM-DD
-  if (!fechaStr) return '';
-  const partes = fechaStr.split('-');
-  if (partes.length !== 3) return fechaStr;
-  return `${partes[2]}/${partes[1]}/${partes[0]}`;
+// Listar órdenes en tránsito
+async function cargarOrdenesProduccion() {
+  const tbody = document.getElementById('tabla-op-body');
+  if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="9">Cargando...</td></tr>';
+
+  try {
+    const res = await fetch('../api/produccion/listar.php?_= ' + Date.now(), {
+      cache: 'no-store'
+    });
+    const data = await res.json();
+
+    if (!Array.isArray(data) || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="9">No hay órdenes en tránsito.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = '';
+
+    data.forEach(op => {
+      const tr = document.createElement('tr');
+      const fecha = op.fecha_creacion || '';
+
+      const siguienteEstado = getSiguienteEstado(op.estado);
+      let botones = '';
+
+      if (siguienteEstado) {
+        botones += `<button data-id="${op.id}" data-estado="${siguienteEstado}" class="btn-op-sig">
+                      ${textoEstadoBonito(siguienteEstado)}
+                    </button>`;
+      }
+
+      botones += ` <button data-id="${op.id}" data-estado="terminada" class="btn-op-term">
+                     Terminar
+                   </button>`;
+
+      botones += ` <button data-id="${op.id}" data-estado="cancelada" class="btn-op-canc">
+                     Cancelar
+                   </button>`;
+
+      tr.innerHTML = `
+        <td>${op.id}</td>
+        <td>${op.codigo || ''}</td>
+        <td>${op.nombre || ''}</td>
+        <td>${op.color || ''}</td>
+        <td>${op.cantidad}</td>
+        <td>${textoEstadoBonito(op.estado)}</td>
+        <td>${op.referencia || ''}</td>
+        <td>${fecha}</td>
+        <td>${botones}</td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+
+    // Delegar eventos de botones (una vez por recarga)
+    tbody.onclick = async (e) => {
+      const btn = e.target;
+      const id = btn.dataset.id;
+      const estado = btn.dataset.estado;
+      if (id && estado) {
+        await cambiarEstadoOP(id, estado);
+      }
+    };
+
+  } catch (err) {
+    console.error('Error cargando órdenes de producción:', err);
+    tbody.innerHTML = '<tr><td colspan="9">Error al cargar las órdenes.</td></tr>';
+  }
 }
 
-function formatearFechaHora(fechaHoraStr) {
-  // Asume formato 'YYYY-MM-DD HH:MM:SS'
-  if (!fechaHoraStr) return '';
-  const [fecha, hora] = fechaHoraStr.split(' ');
-  return `${formatearFecha(fecha)} ${hora ? hora.substring(0,5) : ''}`;
+function getSiguienteEstado(estadoActual) {
+  switch (estadoActual) {
+    case 'tejido':      return 'confeccion';
+    case 'confeccion':  return 'revisado';
+    case 'revisado':    return 'bodega';
+    case 'bodega':      return 'terminada';
+    default:            return null;
+  }
+}
+
+function textoEstadoBonito(estado) {
+  switch (estado) {
+    case 'tejido':     return 'Tejido';
+    case 'confeccion': return 'Confección';
+    case 'revisado':   return 'Revisado';
+    case 'bodega':     return 'Bodega';
+    case 'terminada':  return 'Terminada';
+    case 'cancelada':  return 'Cancelada';
+    default:           return estado;
+  }
+}
+
+// Cambiar estado
+async function cambiarEstadoOP(id, estado) {
+  if (!confirm('¿Cambiar estado a "' + textoEstadoBonito(estado) + '"?')) return;
+
+  try {
+    const res = await fetch('../api/produccion/cambiar_estado.php', {
+      method: 'POST',
+      body: new URLSearchParams({ id, estado })
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      cargarOrdenesProduccion();
+    } else {
+      alert('Error: ' + (data.error || 'No se pudo actualizar el estado.'));
+    }
+  } catch (err) {
+    console.error('Error cambiando estado:', err);
+    alert('Error al cambiar el estado.');
+  }
 }

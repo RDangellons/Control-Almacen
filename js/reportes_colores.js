@@ -71,41 +71,46 @@ function renderTablaColores(lista) {
   tbody.innerHTML = '';
 
   if (!Array.isArray(lista) || lista.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="4">No hay datos de existencias.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5">No hay datos de existencias.</td></tr>';
     return;
   }
 
   let modeloActual = null;
-  let subtotalModelo = 0;
-  let totalGeneral = 0;
+  let subtotalExistModelo = 0;
+  let subtotalTransModelo = 0;
+  let totalExistGeneral = 0;
+  let totalTransGeneral = 0;
 
   lista.forEach(item => {
     const modelo   = item.modelo || '';
     const producto = item.producto_nombre || '';
     const color    = item.color || '';
     const exist    = Number(item.existencias ?? 0);
+    const trans    = Number(item.en_transito ?? 0);
 
-    // Si cambia de modelo → agregamos separador y total del anterior
+    // Si cambió de modelo → agregamos total del anterior + separador del nuevo
     if (modelo !== modeloActual) {
 
-      // Total del modelo anterior (si ya había uno)
+      // Si ya había un modelo anterior, imprimimos sus totales
       if (modeloActual !== null) {
         const trTotal = document.createElement('tr');
         trTotal.classList.add('fila-total-modelo');
         trTotal.innerHTML = `
           <td colspan="3">Total del modelo ${modeloActual}</td>
-          <td>${subtotalModelo}</td>
+          <td>${subtotalExistModelo}</td>
+          <td>${subtotalTransModelo}</td>
         `;
         tbody.appendChild(trTotal);
 
-        subtotalModelo = 0;
+        subtotalExistModelo = 0;
+        subtotalTransModelo = 0;
       }
 
-      // Fila separador del nuevo modelo
+      // Separador de MODELO
       const trSep = document.createElement('tr');
       trSep.classList.add('fila-separador');
       trSep.innerHTML = `
-        <td colspan="4">MODELO ${modelo}</td>
+        <td colspan="5">MODELO ${modelo}</td>
       `;
       tbody.appendChild(trSep);
 
@@ -119,20 +124,24 @@ function renderTablaColores(lista) {
       <td>${producto}</td>
       <td>${color}</td>
       <td>${exist}</td>
+      <td>${trans}</td>
     `;
     tbody.appendChild(tr);
 
-    subtotalModelo += exist;
-    totalGeneral += exist;
+    subtotalExistModelo += exist;
+    subtotalTransModelo += trans;
+    totalExistGeneral   += exist;
+    totalTransGeneral   += trans;
   });
 
-  // Total del último modelo
+  // Totales del último modelo
   if (modeloActual !== null) {
     const trTotalFin = document.createElement('tr');
     trTotalFin.classList.add('fila-total-modelo');
     trTotalFin.innerHTML = `
       <td colspan="3">Total del modelo ${modeloActual}</td>
-      <td>${subtotalModelo}</td>
+      <td>${subtotalExistModelo}</td>
+      <td>${subtotalTransModelo}</td>
     `;
     tbody.appendChild(trTotalFin);
   }
@@ -142,7 +151,9 @@ function renderTablaColores(lista) {
   trGeneral.classList.add('fila-total-general');
   trGeneral.innerHTML = `
     <td colspan="3">TOTAL GENERAL</td>
-    <td>${totalGeneral}</td>
+    <td>${totalExistGeneral}</td>
+    <td>${totalTransGeneral}</td>
   `;
   tbody.appendChild(trGeneral);
 }
+

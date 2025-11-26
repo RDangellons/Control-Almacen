@@ -22,15 +22,26 @@ try {
         $params[':modelo'] = $modelo;
     }
 
+    // Tomamos existencias y EN TRÁNSITO desde ordenes_produccion
     $sql = "
         SELECT
             p.id            AS producto_id,
             p.codigo        AS modelo,
             p.nombre        AS producto_nombre,
             p.color         AS color,
-            COALESCE(e.cantidad, 0) AS existencias
+            COALESCE(e.cantidad, 0)        AS existencias,
+            COALESCE(op.en_transito, 0)    AS en_transito
         FROM productos p
-        LEFT JOIN existencias e ON e.producto_id = p.id
+        LEFT JOIN existencias e 
+            ON e.producto_id = p.id
+        LEFT JOIN (
+            SELECT 
+                producto_id,
+                SUM(cantidad) AS en_transito
+            FROM ordenes_produccion
+            WHERE estado IN ('tejido','confeccion','revisado','bodega')
+            GROUP BY producto_id
+        ) op ON op.producto_id = p.id
         $where
         ORDER BY p.codigo, p.color
     ";
