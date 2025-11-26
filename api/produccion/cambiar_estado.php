@@ -27,7 +27,23 @@ if ($id <= 0 || !in_array($estado, $validos, true)) {
     exit;
 }
 
+$usuario_id = (int)$_SESSION['user_id'];
+
 try {
+    // Obtener estado anterior de la orden
+    $stmt = $conn->prepare("SELECT estado FROM ordenes_produccion WHERE id = :id");
+    $stmt->execute([':id' => $id]);
+    $orden = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$orden) {
+        http_response_code(404);
+        echo json_encode(["error" => "La orden de producción no existe."]);
+        exit;
+    }
+
+    $estado_anterior = $orden['estado'];
+
+    // Actualizar estado de la orden
     $stmt = $conn->prepare("
         UPDATE ordenes_produccion
         SET estado = :estado,
@@ -39,7 +55,21 @@ try {
         ':id'     => $id
     ]);
 
-    echo json_encode(["ok" => true, "mensaje" => "Estado actualizado."]);
+    // Registrar movimiento en historial_produccion
+    $stmt = $conn->prepare("
+        INSERT INTO historial_produccion
+            (orden_id, usuario_id, estado_anterior, estado_nuevo)
+        VALUES
+            (:orden_id, :usuario_id, :estado_anterior, :estado_nuevo)
+    ");
+    $stmt->execute([
+        ':orden_id'       => $id,
+        ':usuario_id'     => $usuario_id,
+        ':estado_anterior'=> $estado_anterior,
+        ':estado_nuevo'   => $estado
+    ]);
+
+    echo json_encode(["ok" => true, "mensaje" => "Estado actualizado y movimiento registrado."]);
 
 } catch (PDOException $e) {
     http_response_code(500);

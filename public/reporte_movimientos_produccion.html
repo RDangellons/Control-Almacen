@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reporte movimientos de producción</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Reporte de movimientos en producción</h1>
+    <button id="logout-btn" style="
+      position:absolute;top:10px;right:10px;
+      padding:6px 12px;border:none;border-radius:4px;
+      background:#c62828;color:#fff;cursor:pointer;">
+      Cerrar sesión
+    </button>
+  </header>
+
+  <main>
+    <a href="index.html" style="text-decoration:none;font-size:0.9rem;display:inline-block;margin-bottom:1rem;">
+      ⬅️ Volver al menú
+    </a>
+
+    <section class="card">
+      <h2>Filtros</h2>
+      <form id="form-filtros" class="form-filtros">
+        <div class="field-group">
+          <label for="desde">Desde (fecha)</label>
+          <input type="date" id="desde" name="desde" />
+        </div>
+        <div class="field-group">
+          <label for="hasta">Hasta (fecha)</label>
+          <input type="date" id="hasta" name="hasta" />
+        </div>
+        <div class="field-group">
+          <label for="estado">Estado nuevo</label>
+          <select id="estado" name="estado">
+            <option value="">Todos</option>
+            <option value="tejido">Tejido</option>
+            <option value="confeccion">Confección</option>
+            <option value="revisado">Revisado</option>
+            <option value="bodega">Bodega</option>
+            <option value="terminada">Terminada</option>
+            <option value="cancelada">Cancelada</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label for="usuario_id">Usuario (id)</label>
+          <input type="number" id="usuario_id" name="usuario_id" min="0" placeholder="Opcional" />
+        </div>
+
+        <button type="submit">Aplicar filtros</button>
+        <button type="button" id="btn-limpiar">Limpiar</button>
+        <button type="button" id="btn-imprimir">Imprimir</button>
+      </form>
+    </section>
+
+    <section class="tabla-productos">
+      <h2>Movimientos registrados</h2>
+      <div class="tabla-contenedor">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Usuario</th>
+              <th>Orden</th>
+              <th>Modelo</th>
+              <th>Producto</th>
+              <th>Color</th>
+              <th>Cantidad</th>
+              <th>Estado anterior</th>
+              <th>Estado nuevo</th>
+              <th>Referencia</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-mov-body">
+            <tr><td colspan="10">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="../js/auth-guard.js"></script>
+  <script src="../js/reporte_movimientos_produccion.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      verificarSesionYOIrALoginSiNo();
+      document.getElementById('logout-btn').addEventListener('click', async () => {
+        await fetch('../api/auth/logout.php');
+        window.location.href = 'login.html';
+      });
+    });
+  </script>
+</body>
+</html>
