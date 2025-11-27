@@ -49,20 +49,25 @@ if (!empty($whereParts)) {
 
 try {
  $sql = "
-  SELECT
-    hp.id,
-    DATE_FORMAT(hp.fecha_movimiento, '%Y-%m-%d %H:%i:%s') AS fecha_movimiento,
-    hp.estado_anterior,
-    hp.estado_nuevo,
-    u.nombre        AS usuario_nombre,
-    op.id           AS orden_id,
-    op.cantidad,
-    op.referencia,
-    p.codigo        AS modelo,
-    p.nombre        AS producto_nombre,
-    p.color
-FROM historial_produccion hp
-...
+    SELECT
+        hp.id,
+        DATE_FORMAT(hp.fecha_movimiento, '%Y-%m-%d %H:%i:%s') AS fecha_movimiento,
+        hp.estado_anterior,
+        hp.estado_nuevo,
+        u.nombre        AS usuario_nombre,
+        op.id           AS orden_id,
+        op.cantidad,
+        op.referencia,
+        p.codigo        AS modelo,
+        p.nombre        AS producto_nombre,
+        p.color
+    FROM historial_produccion hp
+    INNER JOIN ordenes_produccion op ON op.id = hp.orden_id
+    INNER JOIN productos p           ON p.id = op.producto_id
+    INNER JOIN usuarios u            ON u.id = hp.usuario_id
+    $where
+    ORDER BY hp.fecha_movimiento DESC, hp.id DESC
+    LIMIT 500
 ";
 
     $stmt = $conn->prepare($sql);
