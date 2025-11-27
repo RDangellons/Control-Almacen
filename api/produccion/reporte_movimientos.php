@@ -49,20 +49,20 @@ if (!empty($whereParts)) {
 
 try {
  $sql = "
-    SELECT
-        hp.id,
-        CONVERT_TZ(hp.fecha_movimiento, '+00:00', '-06:00') AS fecha_movimiento,
-        hp.estado_anterior,
-        hp.estado_nuevo,
-        u.nombre        AS usuario_nombre,
-        op.id           AS orden_id,
-        op.cantidad,
-        op.referencia,
-        p.codigo        AS modelo,
-        p.nombre        AS producto_nombre,
-        p.color
-    FROM historial_produccion hp
-    ...
+  SELECT
+    hp.id,
+    DATE_FORMAT(hp.fecha_movimiento, '%Y-%m-%d %H:%i:%s') AS fecha_movimiento,
+    hp.estado_anterior,
+    hp.estado_nuevo,
+    u.nombre        AS usuario_nombre,
+    op.id           AS orden_id,
+    op.cantidad,
+    op.referencia,
+    p.codigo        AS modelo,
+    p.nombre        AS producto_nombre,
+    p.color
+FROM historial_produccion hp
+...
 ";
 
     $stmt = $conn->prepare($sql);
