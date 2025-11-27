@@ -12,7 +12,7 @@ if (!isset($_SESSION['user_id'])) {
 
 try {
     $sql = "
-       SELECT
+        SELECT
         op.id,
         op.cantidad,
         op.referencia,
@@ -22,7 +22,7 @@ try {
             '%Y-%m-%d %H:%i:%s'
         ) AS fecha_creacion,
         p.codigo AS modelo,
-        p.nombre AS producto_nombre,
+        p.nombre AS nombre,
         p.color
     FROM ordenes_produccion op
     INNER JOIN productos p ON p.id = op.producto_id
