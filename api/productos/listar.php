@@ -14,7 +14,12 @@ try {
         FROM productos p
         LEFT JOIN existencias e ON e.producto_id = p.id
         WHERE p.activo = 1
-        ORDER BY p.nombre ASC
+        ORDER BY
+  CASE 
+    WHEN p.codigo REGEXP '^[0-9]+$' THEN CAST(p.codigo AS UNSIGNED)
+    ELSE 9999999
+  END,
+  p.codigo ASC;
     ");
     $stmt->execute();
     $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);

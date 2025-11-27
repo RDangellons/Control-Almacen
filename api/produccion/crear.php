@@ -54,16 +54,20 @@ try {
     }
 
     // Crear orden de producción
-    $stmt = $conn->prepare("
-        INSERT INTO ordenes_produccion (producto_id, cantidad, estado, referencia, usuario_id)
-        VALUES (:pid, :cant, 'tejido', :ref, :uid)
-    ");
-    $stmt->execute([
-        ':pid'  => $producto_id,
-        ':cant' => $cantidad,
-        ':ref'  => $referencia,
-        ':uid'  => $usuario_id
-    ]);
+    $fechaMov = date('Y-m-d H:i:s');
+
+$stmt = $conn->prepare("
+    INSERT INTO historial_produccion
+        (orden_id, usuario_id, estado_anterior, estado_nuevo, fecha_movimiento)
+    VALUES
+        (:orden_id, :usuario_id, NULL, 'tejido', :fecha_mov)
+");
+$stmt->execute([
+    ':orden_id'   => $orden_id,
+    ':usuario_id' => $usuario_id,
+    ':fecha_mov'  => $fechaMov
+]);
+
 
     $orden_id = $conn->lastInsertId();
 

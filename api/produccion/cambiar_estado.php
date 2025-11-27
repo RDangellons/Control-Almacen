@@ -56,18 +56,22 @@ try {
     ]);
 
     // Registrar movimiento en historial_produccion
-    $stmt = $conn->prepare("
-        INSERT INTO historial_produccion
-            (orden_id, usuario_id, estado_anterior, estado_nuevo)
-        VALUES
-            (:orden_id, :usuario_id, :estado_anterior, :estado_nuevo)
-    ");
-    $stmt->execute([
-        ':orden_id'       => $id,
-        ':usuario_id'     => $usuario_id,
-        ':estado_anterior'=> $estado_anterior,
-        ':estado_nuevo'   => $estado
-    ]);
+   $fechaMov = date('Y-m-d H:i:s');
+
+$stmt = $conn->prepare("
+    INSERT INTO historial_produccion
+        (orden_id, usuario_id, estado_anterior, estado_nuevo, fecha_movimiento)
+    VALUES
+        (:orden_id, :usuario_id, :estado_anterior, :estado_nuevo, :fecha_mov)
+");
+$stmt->execute([
+    ':orden_id'        => $id,
+    ':usuario_id'      => $usuario_id,
+    ':estado_anterior' => $estado_anterior,
+    ':estado_nuevo'    => $estado,
+    ':fecha_mov'       => $fechaMov
+]);
+
 
     echo json_encode(["ok" => true, "mensaje" => "Estado actualizado y movimiento registrado."]);
 
