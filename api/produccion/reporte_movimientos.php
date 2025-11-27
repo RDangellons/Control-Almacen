@@ -48,27 +48,22 @@ if (!empty($whereParts)) {
 }
 
 try {
-    $sql = "
-        SELECT
-            hp.id,
-            hp.fecha_movimiento,
-            hp.estado_anterior,
-            hp.estado_nuevo,
-            u.nombre        AS usuario_nombre,
-            op.id           AS orden_id,
-            op.cantidad,
-            op.referencia,
-            p.codigo        AS modelo,
-            p.nombre        AS producto_nombre,
-            p.color
-        FROM historial_produccion hp
-        INNER JOIN ordenes_produccion op ON op.id = hp.orden_id
-        INNER JOIN productos p           ON p.id = op.producto_id
-        INNER JOIN usuarios u            ON u.id = hp.usuario_id
-        $where
-        ORDER BY hp.fecha_movimiento DESC, hp.id DESC
-        LIMIT 500
-    ";
+ $sql = "
+    SELECT
+        hp.id,
+        CONVERT_TZ(hp.fecha_movimiento, '+00:00', '-06:00') AS fecha_movimiento,
+        hp.estado_anterior,
+        hp.estado_nuevo,
+        u.nombre        AS usuario_nombre,
+        op.id           AS orden_id,
+        op.cantidad,
+        op.referencia,
+        p.codigo        AS modelo,
+        p.nombre        AS producto_nombre,
+        p.color
+    FROM historial_produccion hp
+    ...
+";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute($params);

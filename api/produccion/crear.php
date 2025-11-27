@@ -4,11 +4,6 @@ require_once __DIR__ . '/../../config/db.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-// Mostrar errores para depuración
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 // Solo POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -54,24 +49,20 @@ try {
     }
 
     // Crear orden de producción
-    $fechaMov = date('Y-m-d H:i:s');
-
-$stmt = $conn->prepare("
-    INSERT INTO historial_produccion
-        (orden_id, usuario_id, estado_anterior, estado_nuevo, fecha_movimiento)
-    VALUES
-        (:orden_id, :usuario_id, NULL, 'tejido', :fecha_mov)
-");
-$stmt->execute([
-    ':orden_id'   => $orden_id,
-    ':usuario_id' => $usuario_id,
-    ':fecha_mov'  => $fechaMov
-]);
-
+    $stmt = $conn->prepare("
+        INSERT INTO ordenes_produccion (producto_id, cantidad, estado, referencia, usuario_id)
+        VALUES (:pid, :cant, 'tejido', :ref, :uid)
+    ");
+    $stmt->execute([
+        ':pid'  => $producto_id,
+        ':cant' => $cantidad,
+        ':ref'  => $referencia,
+        ':uid'  => $usuario_id
+    ]);
 
     $orden_id = $conn->lastInsertId();
 
-    // Registrar historial
+    // Registrar historial (dejamos que MySQL ponga la fecha con DEFAULT CURRENT_TIMESTAMP)
     $stmt = $conn->prepare("
         INSERT INTO historial_produccion (orden_id, usuario_id, estado_anterior, estado_nuevo)
         VALUES (:oid, :uid, NULL, 'tejido')
