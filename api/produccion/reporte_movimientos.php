@@ -51,7 +51,10 @@ try {
  $sql = "
     SELECT
         hp.id,
-        DATE_FORMAT(hp.fecha_movimiento, '%Y-%m-%d %H:%i:%s') AS fecha_movimiento,
+        DATE_FORMAT(
+            DATE_SUB(hp.fecha_movimiento, INTERVAL 6 HOUR),
+            '%Y-%m-%d %H:%i:%s'
+        ) AS fecha_movimiento,
         hp.estado_anterior,
         hp.estado_nuevo,
         u.nombre        AS usuario_nombre,
