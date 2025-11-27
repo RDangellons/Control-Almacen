@@ -12,7 +12,7 @@ if (!isset($_SESSION['user_id'])) {
 
 try {
     $sql = "
-        SELECT
+       SELECT
         op.id,
         op.cantidad,
         op.referencia,
@@ -21,9 +21,10 @@ try {
             DATE_SUB(op.fecha_creacion, INTERVAL 6 HOUR),
             '%Y-%m-%d %H:%i:%s'
         ) AS fecha_creacion,
-        p.codigo AS modelo,
+        p.codigo AS codigo,
+        p.codigo AS modelo,  -- Si tu frontend usa 'modelo', lo mantenemos también
         p.nombre AS nombre,
-        p.color
+        p.color AS color
     FROM ordenes_produccion op
     INNER JOIN productos p ON p.id = op.producto_id
     WHERE op.estado != 'terminada'
