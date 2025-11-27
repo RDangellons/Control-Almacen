@@ -12,21 +12,22 @@ if (!isset($_SESSION['user_id'])) {
 
 try {
     $sql = "
-        SELECT
-            op.id,
-            op.producto_id,
-            op.cantidad,
-            op.estado,
-            op.referencia,
-            op.fecha_creacion,
-            p.codigo,
-            p.nombre,
-            p.color,
-            p.talla
-        FROM ordenes_produccion op
-        INNER JOIN productos p ON p.id = op.producto_id
-        WHERE op.estado NOT IN ('terminada','cancelada')
-        ORDER BY op.fecha_creacion DESC, op.id DESC
+       SELECT
+        op.id,
+        op.cantidad,
+        op.referencia,
+        op.estado,
+        DATE_FORMAT(
+            DATE_SUB(op.fecha_creacion, INTERVAL 6 HOUR),
+            '%Y-%m-%d %H:%i:%s'
+        ) AS fecha_creacion,
+        p.codigo AS modelo,
+        p.nombre AS producto_nombre,
+        p.color
+    FROM ordenes_produccion op
+    INNER JOIN productos p ON p.id = op.producto_id
+    WHERE op.estado != 'terminada'
+    ORDER BY op.fecha_creacion DESC
     ";
 
     $stmt = $conn->prepare($sql);
