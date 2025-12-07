@@ -39,7 +39,7 @@ try {
                 producto_id,
                 SUM(cantidad) AS en_transito
             FROM ordenes_produccion
-            WHERE estado IN ('tejido','confeccion','revisado','bodega')
+            WHERE estado IN ('tejido','enviado_confeccion','confeccion','revisado','embolsado','bodega')
             GROUP BY producto_id
         ) op ON op.producto_id = p.id
         $where

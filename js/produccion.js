@@ -17,7 +17,6 @@ async function cargarProductosSelect() {
   if (!select) return;
 
   try {
-    // Ajusta la ruta si tu endpoint de productos se llama distinto
     const res = await fetch('../api/productos/listar.php');
     const data = await res.json();
 
@@ -75,6 +74,67 @@ async function crearOrdenProduccion() {
   }
 }
 
+// Texto bonito para mostrar el estado
+function textoEstadoBonito(estado) {
+  switch (estado) {
+    case 'tejido':              return 'Tejido';
+    case 'enviado_confeccion':  return 'Enviado a confección';
+    case 'confeccion':          return 'Confección';
+    case 'revisado':            return 'Revisado';
+    case 'embolsado':           return 'Embolsado';
+    case 'bodega':              return 'Bodega';
+    case 'terminada':           return 'Terminada';
+    case 'cancelada':           return 'Cancelada';
+    default:                    return estado;
+  }
+}
+
+// Qué acción debe decir el botón principal según el estado actual
+function getTextoBotonPrincipal(estadoActual) {
+  switch (estadoActual) {
+    case 'tejido':
+      return 'Subir a confección';        // tejedor
+
+    case 'enviado_confeccion':
+      return 'Recibido en confección';    // encargado de confección
+
+    case 'confeccion':
+      return 'Pasar a revisado';
+
+    case 'revisado':
+      return 'Pasar a embolsado';
+
+    case 'embolsado':
+      return 'Pasar a bodega';
+
+    case 'bodega':
+      return 'Terminar';
+
+    default:
+      return 'Siguiente';
+  }
+}
+
+// Flujo de estados
+function getSiguienteEstado(estadoActual) {
+  switch (estadoActual) {
+    case 'tejido':
+      return 'enviado_confeccion';
+    case 'enviado_confeccion':
+      return 'confeccion';
+    case 'confeccion':
+      return 'revisado';
+    case 'revisado':
+      return 'embolsado';
+    case 'embolsado':
+      return 'bodega';
+    case 'bodega':
+      return 'terminada';
+    default:
+      return null;
+  }
+}
+
 // Listar órdenes en tránsito
 async function cargarOrdenesProduccion() {
   const tbody = document.getElementById('tabla-op-body');
@@ -95,41 +155,55 @@ async function cargarOrdenesProduccion() {
 
     tbody.innerHTML = '';
 
-    data.forEach(op => {
-      const tr = document.createElement('tr');
-      const fecha = op.fecha_creacion || '';
+  data.forEach(op => {
+  const tr = document.createElement('tr');
 
-      const siguienteEstado = getSiguienteEstado(op.estado);
-      let botones = '';
+  // 👇 Detectamos el campo de estado venga como venga
+  const estadoRaw =
+    op.estado ??
+    op.estado_actual ??
+    op.estatus ??
+    op.estado_op ??
+    '';
 
-      if (siguienteEstado) {
-        botones += `<button data-id="${op.id}" data-estado="${siguienteEstado}" class="btn-op-sig">
-                      ${textoEstadoBonito(siguienteEstado)}
-                    </button>`;
-      }
+  const estado = String(estadoRaw).trim().toLowerCase();
 
-      botones += ` <button data-id="${op.id}" data-estado="terminada" class="btn-op-term">
-                     Terminar
-                   </button>`;
+  tr.innerHTML = `
+    <td>${op.id}</td>
+    <td>${op.codigo || ''}</td>
+    <td>${op.nombre || ''}</td>
+    <td>${op.color || ''}</td>
+    <td>${op.cantidad}</td>
+    <td>${textoEstadoBonito(estado)}</td>
+    <td>${op.referencia || ''}</td>
+    <td>${op.fecha_creacion || ''}</td>
+    <td class="col-acciones"></td>
+  `;
 
-      botones += ` <button data-id="${op.id}" data-estado="cancelada" class="btn-op-canc">
-                     Cancelar
-                   </button>`;
+  const tdAcciones = tr.querySelector('.col-acciones');
+  const siguienteEstado = getSiguienteEstado(estado);
+  let botones = '';
 
-      tr.innerHTML = `
-        <td>${op.id}</td>
-        <td>${op.codigo || ''}</td>
-        <td>${op.nombre || ''}</td>
-        <td>${op.color || ''}</td>
-        <td>${op.cantidad}</td>
-        <td>${textoEstadoBonito(op.estado)}</td>
-        <td>${op.referencia || ''}</td>
-        <td>${fecha}</td>
-        <td>${botones}</td>
-      `;
+  if (siguienteEstado) {
+    const textoAccion = getTextoBotonPrincipal(estado);
+    botones += `<button data-id="${op.id}" data-estado="${siguienteEstado}" class="btn-op-sig">
+                  ${textoAccion}
+                </button>`;
+  }
 
-      tbody.appendChild(tr);
-    });
+  botones += ` <button data-id="${op.id}" data-estado="terminada" class="btn-op-term">
+                 Terminar
+               </button>`;
+
+  botones += ` <button data-id="${op.id}" data-estado="cancelada" class="btn-op-canc">
+                 Cancelar
+               </button>`;
+
+  tdAcciones.innerHTML = botones;
+  tbody.appendChild(tr);
+});
+
+
 
     // Delegar eventos de botones (una vez por recarga)
     tbody.onclick = async (e) => {
@@ -147,36 +221,14 @@ async function cargarOrdenesProduccion() {
   }
 }
 
-function getSiguienteEstado(estadoActual) {
-  switch (estadoActual) {
-    case 'tejido':      return 'confeccion';
-    case 'confeccion':  return 'revisado';
-    case 'revisado':    return 'bodega';
-    case 'bodega':      return 'terminada';
-    default:            return null;
-  }
-}
-
-function textoEstadoBonito(estado) {
-  switch (estado) {
-    case 'tejido':     return 'Tejido';
-    case 'confeccion': return 'Confección';
-    case 'revisado':   return 'Revisado';
-    case 'bodega':     return 'Bodega';
-    case 'terminada':  return 'Terminada';
-    case 'cancelada':  return 'Cancelada';
-    default:           return estado;
-  }
-}
-
 // Cambiar estado
-async function cambiarEstadoOP(id, estado) {
-  if (!confirm('¿Cambiar estado a "' + textoEstadoBonito(estado) + '"?')) return;
+async function cambiarEstadoOP(id, estadoNuevo) {
+  if (!confirm('¿Seguro que quieres cambiar el estado a "' + textoEstadoBonito(estadoNuevo) + '"?')) return;
 
   try {
     const res = await fetch('../api/produccion/cambiar_estado.php', {
       method: 'POST',
-      body: new URLSearchParams({ id, estado })
+      body: new URLSearchParams({ id, estado: estadoNuevo })
     });
     const data = await res.json();
 
