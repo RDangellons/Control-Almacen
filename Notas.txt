@@ -1,0 +1,1 @@
+---Bug para el inico de sesion del login por que la contraseña esta hashadas-----
